@@ -1,0 +1,7 @@
+title: "Creating Java Application"
+
+actions:
+  - scripts:
+      - mkdir -p $CREATE_DIRECTORY
+      - docker pull -q gradle:8-jdk21
+      - kool docker gradle:8-jdk21 bash -c "cd $CREATE_DIRECTORY && gradle init --no-daemon --type java-application --project-name $CREATE_DIRECTORY --dsl kotlin --test-framework junit-jupiter"

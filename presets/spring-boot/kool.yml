@@ -1,0 +1,5 @@
+scripts:
+  gradle: kool docker kooldev/java:21 gradle
+  build: kool run gradle build --no-daemon
+  test: kool run gradle test --no-daemon
+  run: kool run gradle bootRun --no-daemon
