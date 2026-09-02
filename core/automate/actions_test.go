@@ -92,6 +92,17 @@ func TestParseActionAPI(t *testing.T) {
 	}
 }
 
+func TestParseActionReplace(t *testing.T) {
+	a := parseAction("replace: 'JAVA_VERSION $JAVA_VERSION'", t)
+
+	if a.Replace != "JAVA_VERSION $JAVA_VERSION" {
+		t.Errorf("failed parsing ActionReplace: %v", a)
+	}
+	if a.Type() != TypeReplace {
+		t.Errorf("failed parsing ActionReplace type; got: %v", a.Type())
+	}
+}
+
 func TestAPIOptions(t *testing.T) {
 	data := map[string]any{
 		"data": map[string]any{

@@ -1,6 +1,7 @@
 package automate
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -29,6 +30,8 @@ type Executor struct {
 
 	// promptState is a map of prompt answers
 	promptState map[string]string
+	// copiedFiles contains files available to a following replace action
+	copiedFiles []string
 }
 
 func NewExecutor(sh shell.Shell, fn RetrieveSource) *Executor {
@@ -40,6 +43,7 @@ func NewExecutor(sh shell.Shell, fn RetrieveSource) *Executor {
 		multiPrompter: shell.NewPromptMultiSelect(),
 		input:         shell.NewPromptInput(),
 		promptState:   make(map[string]string),
+		copiedFiles:   make([]string, 0),
 	}
 }
 
@@ -84,6 +88,10 @@ func (e *Executor) Do(steps []*ActionSet) (err error) {
 				}
 			case TypeAPI:
 				if err = e.api(action); err != nil {
+					return
+				}
+			case TypeReplace:
+				if err = e.replace(action); err != nil {
 					return
 				}
 			default:
@@ -147,6 +155,29 @@ func (e *Executor) copy(action *Action) (err error) {
 	}
 
 	_ = file.Close()
+	e.copiedFiles = append(e.copiedFiles, action.Dst)
+	return
+}
+
+func (e *Executor) replace(action *Action) (err error) {
+	var command builder.Command
+	if command, err = builder.ParseCommand("replace " + action.Replace); err != nil {
+		return
+	}
+	if len(command.Args()) != 2 {
+		return fmt.Errorf("replace action expects a search and replacement value")
+	}
+
+	for _, filename := range e.copiedFiles {
+		var data []byte
+		if data, err = afero.ReadFile(e.local, filename); err != nil {
+			return
+		}
+		data = bytes.ReplaceAll(data, []byte(command.Args()[0]), []byte(command.Args()[1]))
+		if err = afero.WriteFile(e.local, filename, data, os.ModePerm); err != nil {
+			return
+		}
+	}
 	return
 }
 

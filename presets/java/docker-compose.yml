@@ -1,6 +1,6 @@
 services:
   app:
-    image: kooldev/java:21
+    image: gradle:8-jdkJAVA_VERSION
     command: ./gradlew run --no-daemon
     environment:
       GRADLE_USER_HOME: /home/gradle/.gradle

@@ -11,6 +11,7 @@ const (
 	TypeMerge
 	TypeInput
 	TypeAPI
+	TypeReplace
 )
 
 // ActionSet represents a set of single actions or a question
@@ -42,6 +43,8 @@ type Action struct {
 	// api
 	API     string      `yaml:"api"`
 	Prompts []*APIField `yaml:"prompts"`
+	// replace
+	Replace string `yaml:"replace"`
 }
 
 // APIField describes a prompt backed by a field in an API response.
@@ -84,6 +87,10 @@ func (a *Action) Type() ActionType {
 
 	if a.API != "" {
 		return TypeAPI
+	}
+
+	if a.Replace != "" {
+		return TypeReplace
 	}
 
 	return TypeUnknown

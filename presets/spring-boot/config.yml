@@ -12,6 +12,7 @@ preset:
     actions:
       - copy: docker-compose.yml
       - copy: kool.yml
+      - replace: JAVA_VERSION $JAVA_VERSION
 
   - name: 'Customize your setup'
     actions:
